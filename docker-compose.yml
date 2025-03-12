@@ -1,0 +1,85 @@
+name: CI/CD Pipeline for FastAPI Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: mydatabase
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U user"
+          --health-timeout=30s
+          --health-start-period=10s
+          --health-retries=5
+
+  install_dependencies:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+  test:
+    runs-on: ubuntu-latest
+    needs: install_dependencies
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run database migrations (if needed)
+        run: |
+          # Effectuer des migrations de base de données, si nécessaire
+          # Par exemple, si vous utilisez Alembic ou d'autres outils
+          # python migrations.py
+
+      - name: Run tests
+        run: |
+          # Vous pouvez exécuter vos tests avec pytest ou un autre framework de test
+          pytest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image (optional)
+        run: |
+          docker build -t fastapi-app .
+
+      - name: Push Docker image to Docker Hub (optional)
+        run: |
+          docker tag fastapi-app yourusername/fastapi-app:latest
+          docker push yourusername/fastapi-app:latest
+
+      - name: Deploy to Server (optional)
+        run: |
+          # Ajouter une étape de déploiement vers un serveur distant ou une plateforme
+          # Par exemple, utiliser SSH pour déployer sur un serveur VPS ou AWS
+          ssh username@server_ip "docker pull yourusername/fastapi-app && docker run -d -p 80:80 yourusername/fastapi-app"
