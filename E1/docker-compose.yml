@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - mongo
+    environment:
+      - DB_NAME=edulink
+      - DB_USER=edulink_user
+      - DB_PASSWORD=edulink_pass
+      - DB_HOST=db
+      - DB_PORT=5432
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: edulink
+      POSTGRES_USER: edulink_user
+      POSTGRES_PASSWORD: edulink_pass
+    ports:
+      - "5433:5432"  
+
+  mongo:
+    image: mongo:6
+    restart: always
+    ports:
+      - "27017:27017"

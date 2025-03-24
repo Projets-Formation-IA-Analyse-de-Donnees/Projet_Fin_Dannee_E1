@@ -1,0 +1,87 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<h2>Uploader un fichier CSV de formateurs</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Importer</button>
+</form>
+
+<!-- Affichage des messages Django -->
+{% if messages %}
+    <ul style="list-style: none; padding: 0;">
+        {% for message in messages %}
+            <li style="margin: 10px 0; padding: 10px; border: 1px solid {% if message.tags == 'success' %}green{% elif message.tags == 'warning' %}orange{% else %}gray{% endif %}; background-color: {% if message.tags == 'success' %}#ddffdd{% elif message.tags == 'warning' %}#fff3cd{% else %}#f0f0f0{% endif %};">
+                {{ message }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<!-- Formateurs déjà présents -->
+{% if formateurs_existants %}
+    <div style="background-color: #ffe0e0; border: 1px solid #cc0000; padding: 10px; margin-top: 20px;">
+        <strong>Ces formateurs sont déjà enregistrés :</strong>
+        <ul>
+            {% for nom, email in formateurs_existants %}
+                <li>{{ nom }} — {{ email }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<hr>
+
+<h3>Liste des formateurs en base</h3>
+{% if formateurs %}
+    <table border="1" style="border-collapse: collapse;">
+        <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Bio</th>
+            <th>Compétence</th>
+            <th>Actions</th>
+        </tr>
+        {% for nom, email, bio, competence in formateurs %}
+        <tr>
+            <td>{{ nom }}</td>
+            <td>{{ email }}</td>
+            <td>{{ bio }}</td>
+            <td>{{ competence }}</td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+
+                    <!-- Suppression -->
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="nom" value="{{ nom }}">
+                        <input type="hidden" name="email" value="{{ email }}">
+                        <button type="submit" name="supprimer" style="background-color: #ffdddd; border: 1px solid red; padding: 5px;">🗑️ Supprimer</button>
+                    </form>
+
+                    <!-- Modification -->
+                    <form method="post" style="display:flex; flex-direction: column; gap: 5px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="nom" value="{{ nom }}">
+                        <input type="hidden" name="email" value="{{ email }}">
+                        <input type="text" name="bio" value="{{ bio }}" placeholder="Nouvelle bio" required style="padding: 3px;">
+                        <input type="text" name="competence" value="{{ competence }}" placeholder="Nouvelle compétence" required style="padding: 3px;">
+                        <button type="submit" name="modifier" style="background-color: #ddffdd; border: 1px solid green; padding: 5px;">✏️ Modifier</button>
+                    </form>
+
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>Aucun formateur pour l’instant.</p>
+{% endif %}
+
+
+
+{% endblock %}

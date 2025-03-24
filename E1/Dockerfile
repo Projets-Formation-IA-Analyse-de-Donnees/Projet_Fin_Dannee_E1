@@ -18,3 +18,4 @@ EXPOSE 8000
 
 # Commande pour démarrer l'application Django
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+

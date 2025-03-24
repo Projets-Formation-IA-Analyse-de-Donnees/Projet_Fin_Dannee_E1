@@ -16,7 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from Authentification import views as authviews
+from Data_Aggregation import views as dataviews
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('connexion/', authviews.connexion , name='connexion'),
+    path('', authviews.connexion , name='connexion'),
+    path('inscription/', authviews.inscription , name='inscription'),
+    path('deconnexion/', authviews.deconnexion , name='deconnexion'),
+    path('accueil/', authviews.accueil , name='accueil'),
+    path('import-formateurs/', dataviews.import_formateurs_csv, name='import_formateurs'),
+
 ]
