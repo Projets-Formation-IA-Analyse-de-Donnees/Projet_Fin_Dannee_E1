@@ -31,3 +31,24 @@ class Inscription(models.Model):
     class Meta:
         unique_together = ('etudiant', 'cours')
 
+
+
+class CommentaireCours(models.Model):
+    etudiant = models.ForeignKey('Etudiant', on_delete=models.CASCADE)
+    cours = models.ForeignKey('Cours', on_delete=models.CASCADE)
+    commentaire = models.TextField()
+    note_pedagogie = models.FloatField()
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.etudiant.nom} - {self.cours.nom} ({self.date})"
+    
+
+class StatCours(models.Model):
+    cours_nom = models.CharField(max_length=100)
+    satisfaction = models.FloatField()
+    nb_participants = models.IntegerField()
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.cours_nom} ({self.date})"

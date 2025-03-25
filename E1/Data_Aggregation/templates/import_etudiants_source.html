@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<h2>Importer les étudiants depuis la base source</h2>
+
+<form method="post" style="margin-bottom: 20px;">
+    {% csrf_token %}
+    <button type="submit" name="importer" style="padding: 6px 12px; border: 1px solid #ccc; background-color: #f5f5f5; border-radius: 4px;">
+        Importer depuis la base source
+    </button>
+</form>
+<!-- Messages Django -->
+{% if messages %}
+    <ul style="list-style: none; padding: 0;">
+        {% for message in messages %}
+            <li style="margin: 10px 0; padding: 10px; border: 1px solid {% if message.tags == 'success' %}green{% elif message.tags == 'warning' %}orange{% else %}gray{% endif %}; background-color: {% if message.tags == 'success' %}#ddffdd{% elif message.tags == 'warning' %}#fff3cd{% else %}#f0f0f0{% endif %};">
+                {{ message }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<!-- Étudiants ajoutés -->
+{% if log_ajoutes %}
+    <div style="background-color: #ddffdd; border: 1px solid green; padding: 10px; margin-top: 20px;">
+        <strong>Étudiants ajoutés avec succès :</strong>
+        <ul>
+            {% for nom, email, cours, note in log_ajoutes %}
+                <li>{{ nom }} — {{ email }} ({{ cours }}, note : {{ note }})</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<!-- Étudiants déjà présents -->
+{% if log_doublons %}
+    <div style="background-color: #ffe0e0; border: 1px solid #cc0000; padding: 10px; margin-top: 20px;">
+        <strong>Ces étudiants ont déjà une inscription pour ce cours :</strong>
+        <ul>
+            {% for nom, email, cours in log_doublons %}
+                <li>{{ nom }} — {{ email }} ({{ cours }})</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<hr>
+
+<h3>Liste des inscriptions</h3>
+
+<table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+    <tr style="background-color: #f2f2f2;">
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Cours</th>
+        <th>Note</th>
+        <th>Actions</th>
+    </tr>
+    {% for etu_id, nom, email, cours_id, cours_nom, note in inscriptions %}
+    <tr>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="etudiant_id" value="{{ etu_id }}">
+            <input type="hidden" name="cours_id" value="{{ cours_id }}">
+            <td>{{ nom }}</td>
+            <td>{{ email }}</td>
+            <td>{{ cours_nom }}</td>
+            <td>
+                <input type="number" step="0.1" name="note" value="{{ note }}" style="width: 60px;">
+            </td>
+            <td>
+                <div style="display: flex; gap: 5px;">
+                    <button type="submit" name="modifier" style="padding: 6px 12px; border: 1px solid #ccc; background-color: #f5f5f5; border-radius: 4px;">Modifier</button>
+                    <button type="submit" name="supprimer" style="padding: 6px 12px; border: 1px solid #ccc; background-color: #f5f5f5; border-radius: 4px;">Supprimer</button>
+                </div>
+            </td>
+        </form>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

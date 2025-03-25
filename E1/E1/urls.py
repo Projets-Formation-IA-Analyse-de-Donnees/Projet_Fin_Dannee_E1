@@ -27,5 +27,7 @@ urlpatterns = [
     path('deconnexion/', authviews.deconnexion , name='deconnexion'),
     path('accueil/', authviews.accueil , name='accueil'),
     path('import-formateurs/', dataviews.import_formateurs_csv, name='import_formateurs'),
-
+    path('inscriptions/', dataviews.importer_etudiants_source, name='importer_etudiants_source'),
+    path('commentaires/', dataviews.commentaires_crud, name='commentaires'),
+    path('stats/', dataviews.stats_vue, name='stats_vue'),
 ]

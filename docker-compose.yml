@@ -2,15 +2,17 @@ version: "3.9"
 
 services:
   web:
-    build: .
+    build: ./E1
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/app
+      - ./E1:/app
     ports:
       - "8000:8000"
     depends_on:
       - db
       - mongo
+      - db_source
+      - api         # 👈 on ajoute notre API Flask
     environment:
       - DB_NAME=edulink
       - DB_USER=edulink_user
@@ -19,6 +21,11 @@ services:
       - DB_PORT=5432
       - MONGO_HOST=mongo
       - MONGO_PORT=27017
+      - SOURCE_DB_NAME=sourcedb
+      - SOURCE_DB_USER=source_user
+      - SOURCE_DB_PASSWORD=source_pass
+      - SOURCE_DB_HOST=db_source
+      - SOURCE_DB_PORT=5432
 
   db:
     image: postgres:15
@@ -28,10 +35,27 @@ services:
       POSTGRES_USER: edulink_user
       POSTGRES_PASSWORD: edulink_pass
     ports:
-      - "5433:5432"  
+      - "5433:5432"
+
+  db_source:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: sourcedb
+      POSTGRES_USER: source_user
+      POSTGRES_PASSWORD: source_pass
+    ports:
+      - "5434:5432"
 
   mongo:
     image: mongo:6
     restart: always
     ports:
       - "27017:27017"
+
+  api:  # 👇 ton API Flask externe
+    build:
+      context: ./api_flask
+    ports:
+      - "5001:5001"
+    restart: always
