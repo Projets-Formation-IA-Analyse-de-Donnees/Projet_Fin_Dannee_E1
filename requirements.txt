@@ -1,1 +1,7 @@
 flask
+Jinja2
+arango
+python-dotenv
+python-arango
+requests
+psycopg2-binary
