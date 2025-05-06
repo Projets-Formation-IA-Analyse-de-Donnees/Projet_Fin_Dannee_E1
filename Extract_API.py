@@ -9,7 +9,7 @@ from psycopg2 import sql
 load_dotenv()
 
 # --- Connexion à ArangoDB ---
-def connect_db():
+def connect_Arrango_db():
     """
     Se connecte à ArangoDB.
     Crée la base 'legifrance' si elle n'existe pas déjà.
@@ -43,8 +43,9 @@ def postgres_connexion():
             host=os.getenv("POSTGRES_HOST"),
             port=os.getenv("POSTGRES_PORT")
         )
-        cur = conn.cursor()
-        return cur
+        cur = conn.cursor()  
+        conn.autocommit = False           
+        return cur ,conn
     except Exception as e:
         print(f"Erreur PostgreSQL : {e}")
         return
@@ -143,7 +144,6 @@ def get_article_text(article_id, headers):
                 "version": version}
 
 
-
 # --- Récupération des liens associés ---
 def get_related_links(article_id, headers):
     """
@@ -174,7 +174,7 @@ def extract_article_infos_from_code(code_obj):
     return results
 
 # --- Extraction et insertion des articles ---
-def extract_and_store_articles(db, headers):
+def extract_and_store_articles(db, db_postgres,conn, headers):
     """
     Extrait les articles et les insère dans la collection 'articles'.
     """
@@ -202,17 +202,36 @@ def extract_and_store_articles(db, headers):
             doc = {
                 "_key": aid,
                 "num": article.get("num"),
-                "texte": meta['texte'],
-                "date_parution": meta["date_parution"],  
-                "version": meta["version"],  
                 "cite": cite,
                 "cite_par": cite_par,
                 "code_parent": code_id
             }
             if not articles_col.has(aid):
                 articles_col.insert(doc)
-            else:
-                articles_col.update_match({"_key": aid}, doc)
+
+                db_postgres.execute("""
+                    INSERT INTO article (date_parution, titre)
+                    VALUES (%s, %s) RETURNING id;
+                """, (meta["date_parution"], article.get("num")))
+                
+                article_id = db_postgres.fetchone()[0]  # Récupère l'ID de l'article inséré
+
+                # 2. Insertion dans la table texte
+                db_postgres.execute("""
+                    INSERT INTO texte (id_article, contenu)
+                    VALUES (%s, %s) RETURNING id;
+                """, (article_id, meta['texte']))
+                
+                texte_id = db_postgres.fetchone()[0]  # Récupère l'ID du texte inséré
+
+                # 3. Insertion dans la table version
+                db_postgres.execute("""
+                    INSERT INTO version (id_article, id_texte, version)
+                    VALUES (%s, %s, %s);
+                """, (article_id, texte_id, meta["version"]))
+
+                conn.commit()
+
         print(f"Code {code_id} traité.")
 
 # --- Insertion d'une arête cite ---
@@ -289,16 +308,18 @@ def main():
     """
     Fonction principale : connecte à la base, extrait les données, insère articles + arêtes + organisation.
     """
-    db_arrango = connect_db()
-    db_postgres = postgres_connexion()
+    db_arrango = connect_Arrango_db()
+    db_postgres,conn = postgres_connexion()
     create_collections(db_arrango)
     create_root_nodes(db_arrango)
     token = get_token()
     headers = get_headers(token)
-    extract_and_store_articles(db_arrango, headers)
+    extract_and_store_articles(db_arrango, db_postgres,conn, headers)
     insert_edges(db_arrango)
     insert_contains_edges(db_arrango)
     print("Extraction, population et organisation terminées.")
+    db_postgres.close()
+    conn.close()
 
 if __name__ == "__main__":
     main()
