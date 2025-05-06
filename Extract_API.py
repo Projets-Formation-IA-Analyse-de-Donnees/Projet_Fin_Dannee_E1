@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from arango import ArangoClient
+from DB_Connexion import *
 import requests
 import os
 import time
@@ -7,76 +7,6 @@ import psycopg2
 from psycopg2 import sql
 
 load_dotenv()
-
-# --- Connexion à ArangoDB ---
-def connect_Arrango_db():
-    """
-    Se connecte à ArangoDB.
-    Crée la base 'legifrance' si elle n'existe pas déjà.
-    """
-    client = ArangoClient()
-    sys_db = client.db(
-        "_system",
-        username=os.getenv("ARANGO_USER"),
-        password=os.getenv("ARANGO_PASSWORD")
-    )
-    db_name = "legifrance"
-    if not sys_db.has_database(db_name):
-        sys_db.create_database(db_name)
-        print(f"Base '{db_name}' créée.")
-    else:
-        print(f"Base '{db_name}' déjà existante.")
-
-    db = client.db(
-        db_name,
-        username=os.getenv("ARANGO_USER"),
-        password=os.getenv("ARANGO_PASSWORD")
-    )
-    return db
-
-def postgres_connexion():
-    try:
-        conn = psycopg2.connect(
-            dbname=os.getenv("POSTGRES_DB"),
-            user=os.getenv("POSTGRES_USER"),
-            password=os.getenv("POSTGRES_PASSWORD"),
-            host=os.getenv("POSTGRES_HOST"),
-            port=os.getenv("POSTGRES_PORT")
-        )
-        cur = conn.cursor()  
-        conn.autocommit = False           
-        return cur ,conn
-    except Exception as e:
-        print(f"Erreur PostgreSQL : {e}")
-        return
-
-# --- Création des collections ---
-def create_collections(db):
-    """
-    Crée les collections 'articles', 'cite' et 'contains' dans la base si elles n'existent pas.
-    """
-    if not db.has_collection("articles"):
-        db.create_collection("articles")
-    if not db.has_collection("cite"):
-        db.create_collection("cite", edge=True)
-    if not db.has_collection("contains"):
-        db.create_collection("contains", edge=True)
-
-# --- Création des nœuds racines ---
-def create_root_nodes(db):
-    """
-    Crée les deux nœuds racines pour le Code de la défense et le Code de la fonction publique.
-    """
-    articles_collection = db.collection("articles")
-
-    roots = [
-        {"_key": "CODE_DEFENSE", "titre": "Code de la défense", "num": None},
-        {"_key": "CODE_FONCTION_PUBLIQUE", "titre": "Code de la fonction publique", "num": None}
-    ]
-
-    for root in roots:
-        if not articles_collection.has(root["_key"]):
-            articles_collection.insert(root)
 
 # --- Récupération du token OAuth ---
 def get_token():
@@ -143,7 +73,6 @@ def get_article_text(article_id, headers):
                 "date_parution": date_debut,  
                 "version": version}
 
-
 # --- Récupération des liens associés ---
 def get_related_links(article_id, headers):
     """
@@ -173,6 +102,23 @@ def extract_article_infos_from_code(code_obj):
         recurse(top)
     return results
 
+# --- Verification du type des données à insérer ---
+def assert_valid_types(date_parution, titre, texte, version):
+    if date_parution is not None and not isinstance(date_parution, str):
+        raise TypeError(f"date_parution doit être une str ou None, reçu: {type(date_parution)}")
+    if titre is not None and not isinstance(titre, str):
+        raise TypeError(f"titre doit être une str ou None, reçu: {type(titre)}")
+    if texte is not None:
+        if not isinstance(texte, str):
+            raise TypeError(f"texte doit être une str ou None, reçu: {type(texte)}")
+        if texte.strip() == "":
+            raise ValueError("texte ne doit pas être une chaîne vide")
+    if version is not None:
+        if not isinstance(version, str):
+            raise TypeError(f"version doit être une str ou None, reçu: {type(version)}")
+        if version.strip() == "":
+            raise ValueError("version ne doit pas être une chaîne vide")
+        
 # --- Extraction et insertion des articles ---
 def extract_and_store_articles(db, db_postgres,conn, headers):
     """
@@ -195,7 +141,7 @@ def extract_and_store_articles(db, db_postgres,conn, headers):
         articles = extract_article_infos_from_code(code_data)
         print(f"{len(articles)} articles extraits.")
 
-        for article in articles[:1]:
+        for article in articles[:50]:
             aid = article["id"]
             meta = get_article_text(aid, headers)
             cite, cite_par = get_related_links(aid, headers)
@@ -207,30 +153,39 @@ def extract_and_store_articles(db, db_postgres,conn, headers):
                 "code_parent": code_id
             }
             if not articles_col.has(aid):
-                articles_col.insert(doc)
-
-                db_postgres.execute("""
-                    INSERT INTO article (date_parution, titre)
-                    VALUES (%s, %s) RETURNING id;
-                """, (meta["date_parution"], article.get("num")))
+                try:
+                    articles_col.insert(doc)
+                except Exception as e:
+                    print(f"Erreur lors de l'insertion dans ArangoDB pour l'article {aid}:{e}")
+                    continue
+                try:
+                    assert_valid_types(meta["date_parution"], article.get("num"), meta['texte'], meta["version"])
                 
-                article_id = db_postgres.fetchone()[0]  # Récupère l'ID de l'article inséré
+                    db_postgres.execute("""
+                        INSERT INTO article (date_parution, titre)
+                        VALUES (%s, %s) RETURNING id;
+                    """, (meta["date_parution"], article.get("num")))
+                    
+                    article_id = db_postgres.fetchone()[0]  # Récupère l'ID de l'article inséré
 
-                # 2. Insertion dans la table texte
-                db_postgres.execute("""
-                    INSERT INTO texte (id_article, contenu)
-                    VALUES (%s, %s) RETURNING id;
-                """, (article_id, meta['texte']))
-                
-                texte_id = db_postgres.fetchone()[0]  # Récupère l'ID du texte inséré
+                    # 2. Insertion dans la table texte
+                    db_postgres.execute("""
+                        INSERT INTO texte (id_article, contenu)
+                        VALUES (%s, %s) RETURNING id;
+                    """, (article_id, meta['texte']))
+                    
+                    texte_id = db_postgres.fetchone()[0]  # Récupère l'ID du texte inséré
 
-                # 3. Insertion dans la table version
-                db_postgres.execute("""
-                    INSERT INTO version (id_article, id_texte, version)
-                    VALUES (%s, %s, %s);
-                """, (article_id, texte_id, meta["version"]))
+                    # 3. Insertion dans la table version
+                    db_postgres.execute("""
+                        INSERT INTO version (id_article, id_texte, version)
+                        VALUES (%s, %s, %s);
+                    """, (article_id, texte_id, meta["version"]))
 
-                conn.commit()
+                    conn.commit()
+                except Exception as e:
+                    print(f"Erreur PostgreSQL pour l'article {aid}: {e}")
+
 
         print(f"Code {code_id} traité.")
 
@@ -310,8 +265,6 @@ def main():
     """
     db_arrango = connect_Arrango_db()
     db_postgres,conn = postgres_connexion()
-    create_collections(db_arrango)
-    create_root_nodes(db_arrango)
     token = get_token()
     headers = get_headers(token)
     extract_and_store_articles(db_arrango, db_postgres,conn, headers)
