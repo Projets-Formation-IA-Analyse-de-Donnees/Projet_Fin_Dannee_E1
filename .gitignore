@@ -2,7 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
-data.txt
+historique_articles.csv
+Creat_CSV.py
 # C extensions
 *.so
 

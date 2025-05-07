@@ -63,6 +63,7 @@ def postgres_connexion():
     -- Table article
     CREATE TABLE IF NOT EXISTS article (
         id SERIAL PRIMARY KEY,
+        article_id TEXT UNIQUE,
         titre TEXT NOT NULL,
         date_parution TIMESTAMP,
         CONSTRAINT unique_article UNIQUE(titre, date_parution)
@@ -74,13 +75,14 @@ def postgres_connexion():
         id_article INTEGER NOT NULL REFERENCES article(id) ON DELETE CASCADE,
         contenu TEXT
     );
-
-    -- Table version
-    CREATE TABLE IF NOT EXISTS version (
+                                    
+    -- Table article_version
+    CREATE TABLE IF NOT EXISTS article_version (
         id SERIAL PRIMARY KEY,
-        id_article INTEGER NOT NULL REFERENCES article(id) ON DELETE CASCADE,
-        id_texte INTEGER NOT NULL REFERENCES texte(id) ON DELETE CASCADE,
-        version TEXT
+        article_id TEXT NOT NULL REFERENCES article(article_id) ON DELETE CASCADE,
+        version_id TEXT NOT NULL,
+        date_version TIMESTAMP NOT NULL,
+        date_fin TIMESTAMP 
     );
     """ 
     try:
@@ -94,7 +96,7 @@ def postgres_connexion():
         cur = conn.cursor()  
         conn.autocommit = False 
         cur.execute(create_query)
-        print("Tables créées avec succès.")
+        print("Tables créées ou déja présentes.")
         return cur ,conn
     except Exception as e:
         print(f"Erreur PostgreSQL : {e}")

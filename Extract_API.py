@@ -162,9 +162,9 @@ def extract_and_store_articles(db, db_postgres,conn, headers):
                     assert_valid_types(meta["date_parution"], article.get("num"), meta['texte'], meta["version"])
                 
                     db_postgres.execute("""
-                        INSERT INTO article (date_parution, titre)
-                        VALUES (%s, %s) RETURNING id;
-                    """, (meta["date_parution"], article.get("num")))
+                        INSERT INTO article (article_id,date_parution, titre)
+                        VALUES (%s, %s, %s) RETURNING id;
+                    """, (aid,meta["date_parution"], article.get("num")))
                     
                     article_id = db_postgres.fetchone()[0]  # Récupère l'ID de l'article inséré
 
@@ -173,14 +173,6 @@ def extract_and_store_articles(db, db_postgres,conn, headers):
                         INSERT INTO texte (id_article, contenu)
                         VALUES (%s, %s) RETURNING id;
                     """, (article_id, meta['texte']))
-                    
-                    texte_id = db_postgres.fetchone()[0]  # Récupère l'ID du texte inséré
-
-                    # 3. Insertion dans la table version
-                    db_postgres.execute("""
-                        INSERT INTO version (id_article, id_texte, version)
-                        VALUES (%s, %s, %s);
-                    """, (article_id, texte_id, meta["version"]))
 
                     conn.commit()
                 except Exception as e:
