@@ -13,7 +13,7 @@ def connect_Arrango_db():
     """
     Se connecte à ArangoDB.
     Crée la base 'legifrance' si elle n'existe pas déjà.
-    Crée les collections 'articles', 'cite' et 'contains' dans la base si elles n'existent pas.
+    Crée les collections 'articles', 'cite' , 'contains','news'  dans la base si elles n'existent pas.
     Crée les deux nœuds racines pour le Code de la défense et le Code de la fonction publique.
     """
     client = ArangoClient()
@@ -36,6 +36,8 @@ def connect_Arrango_db():
     )
     if not db.has_collection("articles"):
         db.create_collection("articles")
+    if not db.has_collection("news"):
+        db.create_collection("news")
     if not db.has_collection("cite"):
         db.create_collection("cite", edge=True)
     if not db.has_collection("contains"):
@@ -60,20 +62,21 @@ def postgres_connexion():
     Création des tables si elles n'xistent pas encore.
     """
     create_query = """
+    -- Table code parent
+    CREATE TABLE IF NOT EXISTS code (
+    id SERIAL PRIMARY KEY,
+    code_id TEXT UNIQUE NOT NULL, 
+    name TEXT NOT NULL
+    
+    );
     -- Table article
     CREATE TABLE IF NOT EXISTS article (
         id SERIAL PRIMARY KEY,
         article_id TEXT UNIQUE,
         titre TEXT NOT NULL,
         date_parution TIMESTAMP,
+        id_code INTEGER REFERENCES code(id) ON DELETE SET NULL,
         CONSTRAINT unique_article UNIQUE(titre, date_parution)
-    );
-
-    -- Table texte
-    CREATE TABLE IF NOT EXISTS texte (
-        id SERIAL PRIMARY KEY,
-        id_article INTEGER NOT NULL REFERENCES article(id) ON DELETE CASCADE,
-        contenu TEXT
     );
                                     
     -- Table article_version
@@ -82,8 +85,11 @@ def postgres_connexion():
         article_id TEXT NOT NULL REFERENCES article(article_id) ON DELETE CASCADE,
         version_id TEXT NOT NULL,
         date_version TIMESTAMP NOT NULL,
-        date_fin TIMESTAMP 
+        date_fin TIMESTAMP, 
+        CONSTRAINT unique_article_version UNIQUE(article_id, version_id)
     );
+
+    
     """ 
     try:
         conn = psycopg2.connect(

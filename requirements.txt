@@ -6,3 +6,5 @@ python-arango
 requests
 psycopg2-binary
 pandas
+bs4 
+BeautifulSoup
