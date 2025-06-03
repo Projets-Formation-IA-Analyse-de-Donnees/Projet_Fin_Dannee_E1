@@ -5,7 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
+    
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,31 +31,22 @@ jobs:
           ARANGO_ROOT_PASSWORD: ${{ secrets.ARANGO_PASSWORD }}
         ports:
           - 8529:8529
-        options: >-
-          --health-cmd="curl --fail --silent http://arangodb:8529/_admin/server/availability || exit 1"
-          --health-interval=20s
-          --health-timeout=10s
-          --health-retries=20
+        # Enlever les options de vérification de santé
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Start services
-        run: |
-          docker pull arangodb:latest
-          docker run -d -e ARANGO_ROOT_PASSWORD=${{ secrets.ARANGO_PASSWORD }} -p 8529:8529 --name arangodb arangodb:latest
-
-      - name: Check ArangoDB logs early
-        run: |
-          sleep 10
-          docker logs arangodb
-
       - name: Wait for services to be ready
-        run: sleep 30
+        run: sleep 60 # Attendre un certain temps pour que les services soient prêts
 
       - name: Test ArangoDB availability
-        run: curl --fail http://arangodb:8529/_admin/server/availability
+        run: |
+          # Vérifier manuellement la disponibilité d'ArangoDB
+          until curl --output /dev/null --silent --head --fail "http://localhost:8529/_admin/server/availability"; do
+            printf 'Waiting for ArangoDB to be ready...\n'
+            sleep 10
+          done
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -69,7 +60,3 @@ jobs:
 
       - name: Run tests
         run: pytest tests/
-
-      - name: Debug ArangoDB logs if failure
-        if: failure()
-        run: docker logs arangodb
