@@ -36,9 +36,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Wait for services to be ready
-        run: sleep 60
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -48,6 +45,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          
+      - name: Test ArangoDB availability
+        run: |
+          until curl --output /dev/null --silent --head --fail "http://localhost:8529/_admin/server/availability"; do
+            printf 'Waiting for ArangoDB to be ready...\n'
+            sleep 10
+          done
 
       - name: Run tests
         run: echo "No tests to run"
