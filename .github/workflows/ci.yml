@@ -32,7 +32,7 @@ jobs:
         ports:
           - 8529:8529
         options: >-
-          --health-cmd="curl --fail --silent http://127.0.0.1:8529/_admin/server/availability || exit 1"
+          --health-cmd="curl --fail --silent http://arangodb:8529/_admin/server/availability || exit 1"
           --health-interval=10s
           --health-timeout=10s
           --health-retries=15
@@ -41,10 +41,10 @@ jobs:
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: "5432"
-      ARANGO_HOST: http://localhost:8529
-      ARANGO_USER: root
+      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+      ARANGO_HOST: ${{ secrets.ARANGO_HOST }}  
+      ARANGO_USER: ${{ secrets.ARANGO_USER }}  
       ARANGO_PASSWORD: ${{ secrets.ARANGO_PASSWORD }}
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
@@ -55,6 +55,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Wait for services to be ready
+        run: sleep 30
+
+      - name: Test ArangoDB availability
+        run: curl --fail http://arangodb:8529/_admin/server/availability
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -64,12 +70,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Wait for services to be ready
-        run: sleep 30
-
-      - name: Test ArangoDB availability
-        run: curl --fail http://localhost:8529/_admin/server/availability
 
       - name: Run tests
         run: pytest tests/
