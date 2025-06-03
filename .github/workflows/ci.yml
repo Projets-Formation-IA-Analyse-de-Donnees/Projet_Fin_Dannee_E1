@@ -25,7 +25,6 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-   
       arangodb:
         image: arangodb:latest
         env:
@@ -38,24 +37,19 @@ jobs:
           --health-timeout=10s
           --health-retries=20
 
-
-    env:
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-      ARANGO_HOST: ${{ secrets.ARANGO_HOST }}  
-      ARANGO_USER: ${{ secrets.ARANGO_USER }}  
-      ARANGO_PASSWORD: ${{ secrets.ARANGO_PASSWORD }}
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-      TOKEN_URL: ${{ secrets.TOKEN_URL }}
-      API_KEY: ${{ secrets.API_KEY }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Start services
+        run: |
+          docker pull arangodb:latest
+          docker run -d -e ARANGO_ROOT_PASSWORD=${{ secrets.ARANGO_PASSWORD }} -p 8529:8529 --name arangodb arangodb:latest
+
+      - name: Check ArangoDB logs early
+        run: |
+          sleep 10
+          docker logs arangodb
 
       - name: Wait for services to be ready
         run: sleep 30
@@ -78,4 +72,4 @@ jobs:
 
       - name: Debug ArangoDB logs if failure
         if: failure()
-        run: docker logs $(docker ps -aqf "ancestor=arangodb:latest")
+        run: docker logs arangodb
