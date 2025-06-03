@@ -46,7 +46,7 @@ def normalize_title(titre):
     return titre
 
 # --- Vérification existence article via titre ---
-def article_exists_by_key(news_col, key):
+def news_exists_by_key(news_col, key):
     return news_col.has(key)
 
 # --- Scraper les URLs à partir d’un mot-clé ---
@@ -90,19 +90,26 @@ def get_urls_from_keyword(mot_cle):
     return articles
 
 # --- Scraper le contenu d’un article ---
-def scrape_infos_article(url, driver):
+def scrape_infos_news(url, driver):
     try:
         driver.get(url)
         wait = WebDriverWait(driver, 10)
 
-        titre = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1.fr-h1"))).text.strip()
+        # Titre requis
+        try:
+            titre = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1.fr-h1"))).text.strip()
+        except Exception:
+            logging.warning(f"Titre introuvable, on skip : {url}")
+            return None
 
+        # Auteur requis
         auteur_elem = driver.find_elements(By.CSS_SELECTOR, "div.vp-discours-details")
         if not auteur_elem:
             logging.warning(f"Auteur non trouvé, on skip : {url}")
             return None
         auteur = auteur_elem[0].text.strip()
 
+        # Contenu requis
         contenu_elem = driver.find_elements(By.CSS_SELECTOR, "div.field--name-field-texte-integral")
         if not contenu_elem:
             logging.warning(f"Contenu non trouvé, on skip : {url}")
@@ -120,6 +127,7 @@ def scrape_infos_article(url, driver):
         "contenu": contenu,
         "date_scraping": datetime.now(timezone.utc).isoformat()
     }
+
 
 # --- Fonction principale ---
 def main():
@@ -148,7 +156,7 @@ def main():
             url = entry["url"]
             logging.info(f"Scraping de l'article : {url}")
 
-            infos = scrape_infos_article(url, driver)
+            infos = scrape_infos_news(url, driver)
             if infos is None:
                 continue
             infos["code"] = racine
@@ -157,7 +165,7 @@ def main():
             infos["_key"] = key
 
             try:
-                if not article_exists_by_key(news_col, key):
+                if not news_exists_by_key(news_col, key):
                     news_col.insert(infos)
                     logging.info(f"Article inséré : {infos['titre']}")
                 else:

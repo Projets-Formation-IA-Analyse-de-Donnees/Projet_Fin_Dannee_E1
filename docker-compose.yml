@@ -23,6 +23,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  flask_api:
+    build:
+      context: .
+    container_name: flask_api
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - arangodb
+      - postgres
+
 volumes:
   arango_data:
   postgres_data:
