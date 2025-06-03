@@ -25,6 +25,7 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
+   
       arangodb:
         image: arangodb:latest
         env:
@@ -33,9 +34,10 @@ jobs:
           - 8529:8529
         options: >-
           --health-cmd="curl --fail --silent http://arangodb:8529/_admin/server/availability || exit 1"
-          --health-interval=10s
+          --health-interval=20s
           --health-timeout=10s
-          --health-retries=15
+          --health-retries=20
+
 
     env:
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
