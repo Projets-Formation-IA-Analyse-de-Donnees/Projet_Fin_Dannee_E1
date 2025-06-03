@@ -1,0 +1,69 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      arangodb:
+        image: arangodb:latest
+        env:
+          ARANGO_ROOT_PASSWORD: root
+        ports:
+          - 8529:8529
+        options: >-
+          --health-cmd="curl --fail http://localhost:8529/_admin/server/availability || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+      ARANGO_HOST: ${{ secrets.ARANGO_HOST }}
+      ARANGO_USER: ${{ secrets.ARANGO_USER }}
+      ARANGO_PASSWORD: ${{ secrets.ARANGO_PASSWORD }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      TOKEN_URL: ${{ secrets.TOKEN_URL }}
+      API_KEY: ${{ secrets.API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Wait for services to be ready
+        run: sleep 20
+
+      
