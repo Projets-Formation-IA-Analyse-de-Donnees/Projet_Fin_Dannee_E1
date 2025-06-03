@@ -28,31 +28,32 @@ jobs:
       arangodb:
         image: arangodb:latest
         env:
-          ARANGO_ROOT_PASSWORD: root
+          ARANGO_ROOT_PASSWORD: ${{ secrets.ARANGO_PASSWORD }}
         ports:
           - 8529:8529
         options: >-
-          --health-cmd="curl --silent http://127.0.0.1:8529/_admin/server/availability | grep -q 'true'"
+          --health-cmd="curl --fail --silent http://localhost:8529/_admin/server/availability || exit 1"
           --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
+          --health-timeout=10s
+          --health-retries=15
 
     env:
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-      ARANGO_HOST: ${{ secrets.ARANGO_HOST }}
-      ARANGO_USER: ${{ secrets.ARANGO_USER }}
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      ARANGO_HOST: http://localhost:8529
+      ARANGO_USER: root
       ARANGO_PASSWORD: ${{ secrets.ARANGO_PASSWORD }}
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       TOKEN_URL: ${{ secrets.TOKEN_URL }}
       API_KEY: ${{ secrets.API_KEY }}
-        
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -65,11 +66,14 @@ jobs:
           pip install -r requirements.txt
 
       - name: Wait for services to be ready
-        run: sleep 30  
+        run: sleep 30
 
-      - name: Check ArangoDB logs (debug)
-        if: failure()
-        run: docker logs $(docker ps -aqf "ancestor=arangodb:latest")
+      - name: Test ArangoDB availability
+        run: curl --fail http://localhost:8529/_admin/server/availability
 
       - name: Run tests
         run: pytest tests/
+
+      - name: Debug ArangoDB logs if failure
+        if: failure()
+        run: docker logs $(docker ps -aqf "ancestor=arangodb:latest")
