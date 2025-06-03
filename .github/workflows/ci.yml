@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:17
@@ -31,10 +32,10 @@ jobs:
         ports:
           - 8529:8529
         options: >-
-          --health-cmd="curl --fail http://localhost:8529/_admin/server/availability || exit 1"
+          --health-cmd="curl --silent http://127.0.0.1:8529/_admin/server/availability | grep -q 'true'"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
 
     env:
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
@@ -64,6 +65,11 @@ jobs:
           pip install -r requirements.txt
 
       - name: Wait for services to be ready
-        run: sleep 20
+        run: sleep 30  
 
-      
+      - name: Check ArangoDB logs (debug)
+        if: failure()
+        run: docker logs $(docker ps -aqf "ancestor=arangodb:latest")
+
+      - name: Run tests
+        run: pytest tests/
