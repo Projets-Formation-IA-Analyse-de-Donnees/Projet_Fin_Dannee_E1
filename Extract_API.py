@@ -172,8 +172,8 @@ def extract_and_store_articles(db, db_postgres, conn, headers):
                     logging.error(f"Erreur PostgreSQL {aid}: {e}")
                     conn.rollback()
             else:
-                logging.info(f"Article {aid} déjà présent.")
-        logging.info(f"Code {code_id} traité.")
+                logging.info(f"Article {aid} deja present.")
+        logging.info(f"Code {code_id} traite.")
 
 # --- Arêtes cite ---
 def insert_citation_edge(cite_col, art_col, from_id, to_id):
