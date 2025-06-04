@@ -31,19 +31,19 @@ pip install -r requirements.txt
 ```
 ```bash
 ### 4. Créer un fichier .env à la racine du projet avec ce contenu :
-POSTGRES_DB = <Nom de votre BDD postgres>
-POSTGRES_USER = <Nom Utilisateur postgres>
-POSTGRES_PASSWORD = <Mot de Passe postgres>
-POSTGRES_HOST = <Host de votre BDD postgres>
-POSTGRES_PORT = <Port de votre BDD postgres>
+POSTGRES_DB = Nom de votre BDD postgres
+POSTGRES_USER =<Nom Utilisateur postgres
+POSTGRES_PASSWORD = Mot de Passe postgres
+POSTGRES_HOST = Host de votre BDD postgres
+POSTGRES_PORT = Port de votre BDD postgres
 
-ARANGO_HOST = <Host de votre BDD arango>
-ARANGO_URL = <URL de votre BDD arango>
-ARANGO_USER = <Nom Utilisateur arango>
-ARANGO_PASSWORD = <Mot de Passe arango>
+ARANGO_HOST = Host de votre BDD arango
+ARANGO_URL = URL de votre BDD arango
+ARANGO_USER = Nom Utilisateur arango
+ARANGO_PASSWORD = Mot de Passe arango
 
-API_KEY = <Clef API Légifrance>
-URL_API = <URL API Légifrance>
+API_KEY = Clef API Légifrance
+URL_API = URL API Légifrance
 ```
 ```bash
 ### 5. Lancer les services Docker
