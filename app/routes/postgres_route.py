@@ -5,11 +5,6 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-print("Connexion Postgres (via Flask) avec :")
-print("HOST =", os.getenv("POSTGRES_HOST"))
-print("USER =", os.getenv("POSTGRES_USER"))
-print("DBNAME =", os.getenv("POSTGRES_DB"))
-
 pg_bp = Blueprint("pg", __name__, url_prefix="/pg")
 
 @pg_bp.route("/articles", methods=["GET"])

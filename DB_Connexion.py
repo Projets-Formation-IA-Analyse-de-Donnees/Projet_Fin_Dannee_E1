@@ -116,7 +116,6 @@ def postgres_connexion():
 
     try:
         host = get_postgres_host()  
-        print("Connexion PostgreSQL à :", host)
         conn = psycopg2.connect(
             dbname=os.getenv("POSTGRES_DB"),
             user=os.getenv("POSTGRES_USER"),
@@ -124,12 +123,12 @@ def postgres_connexion():
             host=host,
             port=os.getenv("POSTGRES_PORT")
         )
-        conn = psycopg2.connect(
-            dbname=os.getenv("POSTGRES_DB"),
-            user=os.getenv("POSTGRES_USER"),
-            password=os.getenv("POSTGRES_PASSWORD"),
-            host=os.getenv("POSTGRES_HOST"),
-            port=os.getenv("POSTGRES_PORT"))
+        # conn = psycopg2.connect(
+        #     dbname=os.getenv("POSTGRES_DB"),
+        #     user=os.getenv("POSTGRES_USER"),
+        #     password=os.getenv("POSTGRES_PASSWORD"),
+        #     host=os.getenv("POSTGRES_HOST"),
+        #     port=os.getenv("POSTGRES_PORT"))
         cur = conn.cursor()
         conn.autocommit = False
         cur.execute(create_query)
