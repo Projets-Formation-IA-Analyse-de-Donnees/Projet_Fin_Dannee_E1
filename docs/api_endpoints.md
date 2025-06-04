@@ -155,8 +155,7 @@ Récupère un article spécifique dans ArangoDB.
   "code_parent": "LEGITEXT000044416551",
   "content": "...",
   "num": "R120-1"
-},
-  ...
+}
 ]
 ```
 
@@ -176,7 +175,8 @@ Récupère toutes les relations de citation depuis la collection 'cite'.
     "_key": "cite_LEGIARTI000050546271_LEGIARTI000050546269",
     "_rev": "_jxozs5a---",
     "_to": "articles/LEGIARTI000050546269"
-  }
+  },
+  ...
 ]
 ```
 
@@ -196,6 +196,7 @@ Récupère les relations structurelles (contains) entre codes et articles.
     "_key": "contains_CODE_FONCTION_PUBLIQUE_LEGIARTI000050546343",
     "_rev": "_jxozx6q---",
     "_to": "articles/LEGIARTI000050546343"
-  }
+  },
+  ...
 ]
 ```
