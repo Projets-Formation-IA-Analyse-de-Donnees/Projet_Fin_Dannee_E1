@@ -9,7 +9,12 @@ from DB_Connexion import postgres_connexion, connect_Arrango_db
 load_dotenv()
 
 # --- Configuration Logging ---
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                     handlers=[
+                    logging.FileHandler("insert.log"),
+                    logging.StreamHandler()
+                    ])
 
 # --- Constantes Globales ---
 CODE_TO_ROOT = {
