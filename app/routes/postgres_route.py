@@ -22,8 +22,6 @@ def get_articles_pg():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-
 @pg_bp.route("/codes", methods=["GET"])
 @require_api_key()
 def get_codes_pg():
@@ -37,7 +35,6 @@ def get_codes_pg():
         return jsonify([{"code_id": r[0], "name": r[1]} for r in rows]), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 @pg_bp.route("/articles/<code_id>", methods=["GET"])
 @require_api_key()
@@ -57,7 +54,6 @@ def get_articles_by_code_pg(code_id):
         return jsonify([{"article_id": r[0], "titre": r[1], "date_parution": r[2]} for r in rows]), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 @pg_bp.route("/versions/<article_id>", methods=["GET"])
 @require_api_key()

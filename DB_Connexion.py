@@ -8,7 +8,7 @@ from psycopg2 import sql
 import socket
 
 load_dotenv()
-
+# --- Gestion du Host Postgres ---
 def get_postgres_host():
     """
     Retourne le bon host en fonction de l’environnement.
@@ -25,7 +25,7 @@ def connect_Arrango_db():
     """
     Se connecte à ArangoDB.
     Crée la base 'legifrance' si elle n'existe pas déjà.
-    Crée les collections 'articles', 'cite' , 'contains','news'  dans la base si elles n'existent pas.
+    Crée les collections 'articles', 'cite' , 'contains', 'news' dans la base si elles n'existent pas.
     Crée les deux nœuds racines pour le Code de la défense et le Code de la fonction publique.
     """
     host_env = os.getenv("ARANGO_HOST")  
@@ -42,8 +42,8 @@ def connect_Arrango_db():
     sys_db = client.db(
         "_system",
         username=os.getenv("ARANGO_USER"),
-        password=os.getenv("ARANGO_PASSWORD")
-    )
+        password=os.getenv("ARANGO_PASSWORD"))
+    
     db_name = "legifrance"
     if not sys_db.has_database(db_name):
         sys_db.create_database(db_name)
@@ -81,7 +81,7 @@ def connect_Arrango_db():
 def postgres_connexion():
     """
     Se connecte à Postgres.
-    Création des tables si elles n'xistent pas encore.
+    Création les tables code, article,article_version si elles n'xistent pas encore.
     """
     cur = None
     conn = None
@@ -123,12 +123,7 @@ def postgres_connexion():
             host=host,
             port=os.getenv("POSTGRES_PORT")
         )
-        # conn = psycopg2.connect(
-        #     dbname=os.getenv("POSTGRES_DB"),
-        #     user=os.getenv("POSTGRES_USER"),
-        #     password=os.getenv("POSTGRES_PASSWORD"),
-        #     host=os.getenv("POSTGRES_HOST"),
-        #     port=os.getenv("POSTGRES_PORT"))
+       
         cur = conn.cursor()
         conn.autocommit = False
         cur.execute(create_query)

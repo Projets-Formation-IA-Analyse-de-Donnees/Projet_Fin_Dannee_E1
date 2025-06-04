@@ -28,7 +28,6 @@ def get_news_arango():
     data = [doc for doc in collection]
     return jsonify(data), 200
 
-
 @arango_bp.route("/article/<article_id>", methods=["GET"])
 @require_api_key()
 def get_article_arango(article_id):
@@ -41,7 +40,6 @@ def get_article_arango(article_id):
         return jsonify(col.get(article_id)), 200
     return jsonify({"error": f"Article {article_id} non trouvé"}), 404
 
-
 @arango_bp.route("/citations", methods=["GET"])
 @require_api_key()
 def get_all_citations():
@@ -52,7 +50,6 @@ def get_all_citations():
     cite_col = db.collection("cite")
     data = [doc for doc in cite_col]
     return jsonify(data), 200
-
 
 @arango_bp.route("/structure", methods=["GET"])
 @require_api_key()
