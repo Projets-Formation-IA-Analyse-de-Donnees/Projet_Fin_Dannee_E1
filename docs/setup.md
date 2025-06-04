@@ -58,6 +58,6 @@ python Extract_Scrapping.py
 
 ## Documentation des requêtes API
 
-Tu peux maintenant consulter la liste complète des points de terminaison disponibles, ainsi que des exemples de requêtes et de réponses, dans le fichier suivant : [Voir la documentation des endpoints](api_endpoints.md)
+Tu peux maintenant consulter la documentation concernant l'orchestration des scripts, dans le fichier suivant : [Voir la documentation d'orchestration](orchestration.md)
 
 

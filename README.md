@@ -31,5 +31,6 @@ Enfin, l’ensemble des données est exposé à travers différents points de te
 - [Lancement du projet](docs/setup.md)
 - [Endpoints de l’API](docs/api_endpoints.md)
 - [Authentification](docs/auth.md)
+- [Orchestration](docs/orchestration.md)
 
 

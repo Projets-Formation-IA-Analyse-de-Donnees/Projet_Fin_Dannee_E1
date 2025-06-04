@@ -1,7 +1,10 @@
 # Documentation des Endpoints de l'API Flask
 
-> Tous les endpoints nécessitent une clé API envoyée dans l'en-tête `x-api-key`.
-> Vous pouvez la définir dans votre .env 
+Tous les endpoints nécessitent une clé API envoyée dans l'en-tête `x-api-key`.
+Vous pouvez la définir dans votre .env 
+Pour plus d'informations : [Voir la documentation d'authentification](auth.md)
+
+
 
 ---
 
