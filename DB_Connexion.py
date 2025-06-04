@@ -83,52 +83,60 @@ def postgres_connexion():
     Se connecte à Postgres.
     Création des tables si elles n'xistent pas encore.
     """
+    cur = None
+    conn = None
+    create_query = """
+    -- Table code parent
+    CREATE TABLE IF NOT EXISTS code (
+        id SERIAL PRIMARY KEY,
+        code_id TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL
+    );
+
+    -- Table article
+    CREATE TABLE IF NOT EXISTS article (
+        id SERIAL PRIMARY KEY,
+        article_id TEXT UNIQUE,
+        titre TEXT NOT NULL,
+        date_parution TIMESTAMP,
+        id_code INTEGER REFERENCES code(id) ON DELETE SET NULL,
+        CONSTRAINT unique_article UNIQUE(titre, date_parution)
+    );
+
+    -- Table article_version
+    CREATE TABLE IF NOT EXISTS article_version (
+        id SERIAL PRIMARY KEY,
+        article_id TEXT NOT NULL REFERENCES article(article_id) ON DELETE CASCADE,
+        version_id TEXT NOT NULL,
+        date_version TIMESTAMP NOT NULL,
+        date_fin TIMESTAMP,
+        CONSTRAINT unique_article_version UNIQUE(article_id, version_id)
+    );
+    """
+
     try:
-        create_query = """
-        -- Table code parent
-        CREATE TABLE IF NOT EXISTS code (
-            id SERIAL PRIMARY KEY,
-            code_id TEXT UNIQUE NOT NULL,
-            name TEXT NOT NULL
-        );
-
-        -- Table article
-        CREATE TABLE IF NOT EXISTS article (
-            id SERIAL PRIMARY KEY,
-            article_id TEXT UNIQUE,
-            titre TEXT NOT NULL,
-            date_parution TIMESTAMP,
-            id_code INTEGER REFERENCES code(id) ON DELETE SET NULL,
-            CONSTRAINT unique_article UNIQUE(titre, date_parution)
-        );
-
-        -- Table article_version
-        CREATE TABLE IF NOT EXISTS article_version (
-            id SERIAL PRIMARY KEY,
-            article_id TEXT NOT NULL REFERENCES article(article_id) ON DELETE CASCADE,
-            version_id TEXT NOT NULL,
-            date_version TIMESTAMP NOT NULL,
-            date_fin TIMESTAMP,
-            CONSTRAINT unique_article_version UNIQUE(article_id, version_id)
-        );
-        """
-    except:
-        print("Erreur lors de la redaction des tables")
-
-    try:
-        # host = get_postgres_host()
-        # print(host)
+        host = get_postgres_host()  
+        print("Connexion PostgreSQL à :", host)
         conn = psycopg2.connect(
-        dbname=os.getenv("POSTGRES_DB"),
-        user=os.getenv("POSTGRES_USER"),
-        password=os.getenv("POSTGRES_PASSWORD"),
-        host=os.getenv("POSTGRES_HOST"),
-        port=os.getenv("POSTGRES_PORT"))
-        cur = conn.cursor()  
-        conn.autocommit = False 
+            dbname=os.getenv("POSTGRES_DB"),
+            user=os.getenv("POSTGRES_USER"),
+            password=os.getenv("POSTGRES_PASSWORD"),
+            host=host,
+            port=os.getenv("POSTGRES_PORT")
+        )
+        conn = psycopg2.connect(
+            dbname=os.getenv("POSTGRES_DB"),
+            user=os.getenv("POSTGRES_USER"),
+            password=os.getenv("POSTGRES_PASSWORD"),
+            host=os.getenv("POSTGRES_HOST"),
+            port=os.getenv("POSTGRES_PORT"))
+        cur = conn.cursor()
+        conn.autocommit = False
         cur.execute(create_query)
-        print("Tables créées ou déja présentes.")
-    except:
-        print("Erreur lors de la creation des tables")
-    return cur ,conn
+        print("Tables créées ou déjà présentes.")
+    except Exception as e:
+        print("Erreur lors de la connexion à PostgreSQL :", e)
+        return None, None
+
+    return cur, conn
   

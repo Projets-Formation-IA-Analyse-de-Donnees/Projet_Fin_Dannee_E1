@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify
 from app.auth import require_api_key
 from DB_Connexion import connect_Arrango_db
+from dotenv import load_dotenv
+load_dotenv()
 
 arango_bp = Blueprint("arango", __name__, url_prefix="/arango")
 
