@@ -7,7 +7,7 @@ Voici les étapes nécessaires pour configurer et lancer l’ensemble du projet
 ## Prérequis
 
 - Python 3.10 ou supérieur
-- Docker + Docker Compose
+- Docker
 
 
 
@@ -19,18 +19,19 @@ Voici les étapes nécessaires pour configurer et lancer l’ensemble du projet
 git clone <lien-du-repo>
 cd Projet_Fin_Dannee_E1
 ```
-```bash
 ### 2. Créer l’environnement virtuel et l'activer
+```bash
 python -m venv venv
 venv\Scripts\activate         # Sur Windows
 # source venv/bin/activate    # Sur Linux/Mac
 ```
-```bash
+
 ### 3. Installer les dépendances Python
+```bash
 pip install -r requirements.txt
 ```
+### 4. Créer un fichier .env à la racine du projet:
 ```bash
-### 4. Créer un fichier .env à la racine du projet avec ce contenu :
 POSTGRES_DB = Nom de votre BDD postgres
 POSTGRES_USER =<Nom Utilisateur postgres
 POSTGRES_PASSWORD = Mot de Passe postgres
@@ -45,12 +46,12 @@ ARANGO_PASSWORD = Mot de Passe arango
 API_KEY = Clef API Légifrance
 URL_API = URL API Légifrance
 ```
-```bash
 ### 5. Lancer les services Docker
+```bash
 docker-compose up -d --build
 ```
-```bash
 ### 6. Extraire et insérer les données
+```bash
 python Extract_API.py
 python Extract_File.py
 python Extract_Scrapping.py

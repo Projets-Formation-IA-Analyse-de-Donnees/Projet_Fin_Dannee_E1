@@ -1,7 +1,7 @@
 # Documentation des Endpoints de l'API Flask
 
 Tous les endpoints nécessitent une clé API envoyée dans l'en-tête `x-api-key`.
-Vous pouvez la définir dans votre .env 
+Vous pouvez la définir dans votre .env.
 Pour plus d'informations : [Voir la documentation d'authentification](auth.md)
 
 
@@ -13,6 +13,7 @@ Pour plus d'informations : [Voir la documentation d'authentification](auth.md)
 ### `GET /pg/articles`
 
 **Description :**  
+
 Récupère les 50 premiers articles enregistrés dans la base de données PostgreSQL.
 
 **Exemple de réponse :**
@@ -32,6 +33,7 @@ Récupère les 50 premiers articles enregistrés dans la base de données Postgr
 ### `GET /pg/codes`
 
 **Description :**  
+
 Retourne l’ensemble des codes juridiques enregistrés avec leur code_id et leur nom.
 
 **Exemple de réponse :**
@@ -49,9 +51,11 @@ Retourne l’ensemble des codes juridiques enregistrés avec leur code_id et leu
 ### `GET /pg/articles/<code_id>`
 
 **Description :**  
+
 Retourne tous les articles associés à un code donné.
 
 **Paramètres :**
+
 code_id : identifiant du code (ex. LEGITEXT000044416551)
 
 **Exemple de réponse :**
@@ -71,10 +75,12 @@ code_id : identifiant du code (ex. LEGITEXT000044416551)
 ### `GET /pg/versions/<article_id>`
 
 
-**Description :**  
+**Description :** 
+
 Retourne toutes les versions disponibles pour un article donné.
 
 **Paramètres :**
+
 article_id : identifiant de l'article (ex. LEGITEXT000044416551)
 
 **Exemple de réponse :**
@@ -95,7 +101,8 @@ article_id : identifiant de l'article (ex. LEGITEXT000044416551)
 
 ### `GET /arango/articles`
 
-**Description :**  
+**Description :** 
+
 Récupère tous les documents de la collection 'articles' dans ArangoDB.
 
 **Exemple de réponse :**
@@ -119,6 +126,7 @@ Récupère tous les documents de la collection 'articles' dans ArangoDB.
 ### `GET /arango/news`
 
 **Description :**  
+
 Récupère tous les documents de la collection 'news' dans ArangoDB.
 
 **Exemple de réponse :**
@@ -143,6 +151,7 @@ Récupère tous les documents de la collection 'news' dans ArangoDB.
 ### `GET /arango/article/<article_id>`
 
 **Description :**  
+
 Récupère un article spécifique dans ArangoDB.
 
 **Exemple de réponse :**
@@ -166,6 +175,7 @@ Récupère un article spécifique dans ArangoDB.
 ### `GET /arango/citations`
 
 **Description :**  
+
 Récupère toutes les relations de citation depuis la collection 'cite'.
 
 **Exemple de réponse :**
@@ -187,6 +197,7 @@ Récupère toutes les relations de citation depuis la collection 'cite'.
 ### `GET /arango/structure`
 
 **Description :**  
+
 Récupère les relations structurelles (contains) entre codes et articles.
 
 **Exemple de réponse :**
