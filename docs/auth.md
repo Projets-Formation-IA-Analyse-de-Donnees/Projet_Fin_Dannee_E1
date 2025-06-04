@@ -16,3 +16,4 @@ Par exemple, pour tester un endpoint :
 ```bash
 curl -H "x-api-key: exemple_clé_API" http://localhost:5000/...
 ```
+[Voir la documentation des endpoints](api_endpoints.md)
