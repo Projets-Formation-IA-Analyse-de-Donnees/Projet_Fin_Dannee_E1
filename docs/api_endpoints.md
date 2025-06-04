@@ -200,3 +200,5 @@ Récupère les relations structurelles (contains) entre codes et articles.
   ...
 ]
 ```
+
+[Voir la documentation de lancement du projet ](setup.md)

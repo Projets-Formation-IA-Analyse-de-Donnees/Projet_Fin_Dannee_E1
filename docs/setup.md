@@ -1,6 +1,6 @@
 # Lancement du projet
 
-Voici les étapes nécessaires pour configurer et lancer l’ensemble du projet :
+Voici les étapes nécessaires pour configurer et lancer l’ensemble du projet 
 
 
 
@@ -20,7 +20,7 @@ git clone <lien-du-repo>
 cd Projet_Fin_Dannee_E1
 ```
 ```bash
-### 2. Créer l’environnement virtuel
+### 2. Créer l’environnement virtuel et l'activer
 python -m venv venv
 venv\Scripts\activate         # Sur Windows
 # source venv/bin/activate    # Sur Linux/Mac

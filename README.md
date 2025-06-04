@@ -15,6 +15,6 @@ Toutes les données sont agrégées et disponibles via une API Flask sécurisée
 
 - [Lancement du projet](docs/setup.md)
 - [Endpoints de l’API](docs/api_endpoints.md)
-- [Structure des données PostgreSQL (à venir)](docs/schema_pgsql.md)
-- [Structure des données ArangoDB (à venir)](docs/schema_arango.md)
+- [Structure des données PostgreSQL ](docs/schema_pgsql.md)
+- [Structure des données ArangoDB ](docs/schema_arango.md)
 
