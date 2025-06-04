@@ -61,4 +61,3 @@ python Extract_Scrapping.py
 Tu peux maintenant consulter la liste complète des points de terminaison disponibles, ainsi que des exemples de requêtes et de réponses, dans le fichier suivant :
 
 [Voir la documentation des endpoints](api_endpoints.md)
----
