@@ -22,15 +22,12 @@ import re
 load_dotenv()
 
 # --- Configuration du logger ---
-log_format = "%(asctime)s - %(levelname)s - %(message)s"
-log_datefmt = "%H:%M:%S"
-
 logging.basicConfig(
     level=logging.INFO,
-    format=log_format,
-    datefmt=log_datefmt,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%H:%M:%S",
     handlers=[
-        logging.FileHandler("scraping.log", mode='w', encoding='utf-8'),
+        logging.FileHandler("insert_scrapping.log", mode='w', encoding='utf-8'),
         logging.StreamHandler()
     ])
 

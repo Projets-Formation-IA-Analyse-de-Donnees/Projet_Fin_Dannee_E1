@@ -128,7 +128,7 @@ def get_or_create_code(cur, conn, code_id):
         conn.rollback()
         return None
 
-# --- Stockage articles ---ze
+# --- Stockage articles ---
 def extract_and_store_articles(db, db_postgres, conn, headers):
     articles_col = db.collection("articles")
     for code_id in get_codes(headers):
