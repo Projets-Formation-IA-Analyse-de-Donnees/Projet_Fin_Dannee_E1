@@ -42,7 +42,7 @@ Après l'exécution des scripts d'extraction, des fichiers de logs dédiés sont
 
 Attention: 
 
-    - Lors de la création de la collection d'arêtes de citation dans ArangoDB, certaines relations peuvent ne pas être établies correctement. Cela s'explique par le fait que, par souci de performance, j’ai volontairement limité le nombre d’articles récupérés à 50 par code.
+    Lors de la création de la collection d'arêtes de citation dans ArangoDB, certaines relations peuvent ne pas être établies correctement. Cela s'explique par le fait que, par souci de performance, j’ai volontairement limité le nombre d’articles récupérés à 50 par code.
     Par conséquent, il est normal que certains articles ne soient pas reliés, même s’ils possèdent des références vers d'autres articles.
 
     Vous pouvez changer cette valeur ligne 143 du scripts Extract_API.py  '[:50]'
