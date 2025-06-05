@@ -1,6 +1,6 @@
 # Authentification
 
-L'accès à l'API est sécurisé par une clé d'authentification transmise via l'en-tête HTTP 'x-api-key'.
+L'accès à l'API est sécurisé par une clé d'authentification transmise via l'en-tête HTTP `x-api-key`.
 
 Chaque point de terminaison est protégé par un décorateur spécifique, qui vérifie que la clé fournie correspond à celle définie dans le fichier .env.
 
