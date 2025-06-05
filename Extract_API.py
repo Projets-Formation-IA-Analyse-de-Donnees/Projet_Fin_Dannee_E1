@@ -12,7 +12,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s',
                      handlers=[
-                    logging.FileHandler("insert.log"),
+                    logging.FileHandler("insert_articles.log"),
                     logging.StreamHandler()
                     ])
 
